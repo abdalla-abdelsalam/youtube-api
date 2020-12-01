@@ -14,10 +14,15 @@ def load_env():
 
 # parsing the playlist link to get playlist id
 def playlist_link():
+    try:
         playlist_link=input("please enter playlist link: ")
         txt=r'playlist\?list=.*'
         playlist_id_pattern= re.search(txt, playlist_link)
         _,id=playlist_id_pattern.group(0).split('=')
+    except AttributeError:
+        print("invalid playlist link")
+        exit()
+    else:
         return id
     
 
