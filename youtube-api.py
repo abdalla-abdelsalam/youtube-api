@@ -32,6 +32,25 @@ def time_process(total_seconds):
     return hours,minutes,seconds
 
 
+# connecting to youtube api to get title,videos count,channel name and playlist name.
+def youtube_api_playlist(playlist_id):
+    try:
+        api_key = os.environ.get('API_KEY')
+        youtube = build('youtube', 'v3', developerKey=api_key)
+        ppl_request=youtube.playlists().list(
+            part=['snippet','contentDetails'],
+            id=playlist_id,
+        )
+        pl_response=ppl_request.execute()
+        channelTitle=pl_response['items'][0]['snippet']['channelTitle']
+        playlist_title=pl_response['items'][0]['snippet']['title']
+        videos_count=pl_response['items'][0]['contentDetails']['itemCount']
+    except Exception:
+        print("invalid API KEY")
+        exit()
+    else:
+        return channelTitle,playlist_title,videos_count
+
 
 '''
 connecting to youtube api to get playlist videos id and go through each one of them to get the duration 
@@ -92,14 +111,18 @@ def youtube_api_playlistItems():
 
 
 
-def output_format(hours,minutes,seconds):
+def output_format(channelTitle,playlist_title,videos_count,hours,minutes,seconds):
+    print(f"channel name : {channelTitle}")
+    print(f"playlist name : {playlist_title}")
+    print(f'number of videos: {videos_count}')
     print(f'playlist time duration: {hours}h:{minutes}m:{seconds}s')
 
 
 if __name__=="__main__":
     load_env()
     id=playlist_link()
+    channelTitle,playlist_title,videos_count=youtube_api_playlist(id)
     total_seconds=youtube_api_playlistItems()
     hours,minutes,seconds=time_process(total_seconds)
-    output_format(hours,minutes,seconds)
+    output_format(channelTitle,playlist_title,videos_count,hours,minutes,seconds)
 
